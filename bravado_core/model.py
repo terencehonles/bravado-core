@@ -885,10 +885,13 @@ def _run_post_processing(spec):
     additional_uri = _get_unprocessed_uri(spec, processed_uris)
     while additional_uri is not None:
         # Post process each referenced specs to identify models in definitions of linked files
-        with spec.resolver.in_scope(additional_uri):
+        try:
+            spec.resolver.push_scope(additional_uri)
             _call_post_process_spec(
                 spec.resolver.store[additional_uri],
             )
+        finally:
+            spec.resolver.pop_scope()
 
         processed_uris.add(additional_uri)
         additional_uri = _get_unprocessed_uri(spec, processed_uris)
